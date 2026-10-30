@@ -59,8 +59,16 @@ const playlistNameInput = document.getElementById('playlistNameInput');
 const btnAddPlaylist = document.getElementById('btnAddPlaylist');
 
 // Sistema de Playlists en memoria
-let playlistsData = { "Default": [] };
-let currentPlaylistName = "Default";
+// Cargar listas guardadas o empezar de cero si es la primera vez
+let savedPlaylists = localStorage.getItem('player_playlists');
+let playlistsData = savedPlaylists ? JSON.parse(savedPlaylists) : { "Default": [] };
+
+// Como localStorage no guarda los archivos reales, los reseteamos a vacíos pero mantenemos los nombres de tus listas
+Object.keys(playlistsData).forEach(key => {
+    playlistsData[key] = [];
+});
+
+let currentPlaylistName = Object.keys(playlistsData)[0] || "Default";
 let currentIndex = 0;
 let isShuffle = false;
 let isLoop = false;
@@ -223,10 +231,15 @@ btnAddPlaylist.addEventListener('click', () => {
         playlistsData[name] = [];
         currentPlaylistName = name;
         playlistNameInput.value = "";
+        
+        // GUARDAR EN EL NAVEGADOR
+        localStorage.setItem('player_playlists', JSON.stringify(playlistsData));
+        
         renderSelectors();
         updatePlaylistUI();
     }
 });
+
 
 playlistSelector.addEventListener('change', (e) => {
     currentPlaylistName = e.target.value;
@@ -271,3 +284,40 @@ btnLang.addEventListener('click', () => {
 
 // Inicio
 renderSelectors();
+
+// --- CONTROLES DE EFECTOS CORREGIDOS EN TIEMPO REAL ---
+
+document.getElementById('eqBass').addEventListener('input', async (e) => {
+    if (audioCtx && audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+    }
+    if (bassFilter) {
+        bassFilter.gain.value = parseFloat(e.target.value);
+    }
+});
+
+document.getElementById('eqMid').addEventListener('input', async (e) => {
+    if (audioCtx && audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+    }
+    if (midFilter) {
+        midFilter.gain.value = parseFloat(e.target.value);
+    }
+});
+
+document.getElementById('eqTreble').addEventListener('input', async (e) => {
+    if (audioCtx && audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+    }
+    if (trebleFilter) {
+        trebleFilter.gain.value = parseFloat(e.target.value);
+    }
+});
+
+document.getElementById('speedControl').addEventListener('input', async (e) => {
+    if (audioCtx && audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+    }
+    audio.playbackRate = parseFloat(e.target.value);
+    document.getElementById('speedVal').textContent = e.target.value + 'x';
+});
