@@ -88,55 +88,64 @@ function initAudioEngine() {
     midFilter.connect(trebleFilter);
     trebleFilter.connect(audioCtx.destination);
 }
-
 function loadTrack(index) {
     const list = playlistsData[currentPlaylistName];
     if(!list || list.length === 0) return;
     currentIndex = index;
     const file = list[currentIndex];
     
+    // 1. REPRODUCCIÓN INMEDIATA (Evita que se quede colgado)
     audio.src = URL.createObjectURL(file);
+    initAudioEngine();
+    audio.play();
+    btnPlay.textContent = '⏸';
     albumArt.classList.add('playing');
     
-    // Configuración por defecto
+    // 2. TEXTOS POR DEFECTO (Mientras lee o por si no tiene tags)
+    const defaultArtist = currentLang === 'es' ? "Audio Local" : "Local Audio";
     trackTitle.textContent = file.name.replace('.mp3', '');
-    trackArtist.textContent = currentLang === 'es' ? "Cargando metadatos..." : "Loading metadata...";
+    trackArtist.textContent = defaultArtist;
     trackAlbum.textContent = "";
     artImage.style.display = "none";
     artPlaceholder.style.display = "block";
 
-    // Leer tags reales (Artista, Banda, Carátula) usando jsmediatags
-    window.jsmediatags.read(file, {
-        onSuccess: function(tag) {
-            if(tag.tags.title) trackTitle.textContent = tag.tags.title;
-            if(tag.tags.artist) trackArtist.textContent = tag.tags.artist;
-            if(tag.tags.album) trackAlbum.textContent = tag.tags.album;
-            
-            // Procesar carátula si existe
-            const image = tag.tags.picture;
-            if (image) {
-                let base64String = "";
-                for (let i = 0; i < image.data.length; i++) {
-                    base64String += String.fromCharCode(image.data[i]);
+    // 3. LECTURA SEGURO EN SEGUNDO PLANO
+    try {
+        if (window.jsmediatags) {
+            window.jsmediatags.read(file, {
+                onSuccess: function(tag) {
+                    if(tag.tags.title) trackTitle.textContent = tag.tags.title;
+                    if(tag.tags.artist) trackArtist.textContent = tag.tags.artist;
+                    if(tag.tags.album) trackAlbum.textContent = tag.tags.album;
+                    
+                    // Procesar carátula si existe
+                    const image = tag.tags.picture;
+                    if (image) {
+                        let base64String = "";
+                        for (let i = 0; i < image.data.length; i++) {
+                            base64String += String.fromCharCode(image.data[i]);
+                        }
+                        const base64 = "data:" + image.format + ";base64," + window.btoa(base64String);
+                        artImage.src = base64;
+                        artImage.style.display = "block";
+                        artPlaceholder.style.display = "none";
+                    }
+                },
+                onError: function(error) {
+                    console.log("No se encontraron metadatos, usando los de por defecto.");
+                    trackArtist.textContent = defaultArtist;
                 }
-                const base64 = "data:" + image.format + ";base64," + window.btoa(base64String);
-                artImage.src = base64;
-                artImage.style.display = "block";
-                artPlaceholder.style.display = "none";
-            }
-        },
-        onError: function(error) {
-            trackArtist.textContent = currentLang === 'es' ? "Audio Local" : "Local Audio";
+            });
         }
-    });
+    } catch (e) {
+        console.error("Error con jsmediatags:", e);
+        trackArtist.textContent = defaultArtist;
+    }
     
     lyricsBox.innerHTML = translations[currentLang].lyricsTemplate.replace('{name}', file.name);
     updatePlaylistUI();
-
-    initAudioEngine();
-    audio.play();
-    btnPlay.textContent = '⏸';
 }
+
 
 // Botones e Interfaz
 btnPlay.addEventListener('click', () => {
