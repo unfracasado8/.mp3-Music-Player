@@ -79,7 +79,7 @@ input[type="range"] {
 .btn-group {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 10px;
     margin-top: 15px;
 }
 
@@ -87,7 +87,7 @@ button {
     background: #2a2a35;
     border: none;
     color: white;
-    padding: 10px 15px;
+    padding: 10px 12px;
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
@@ -95,12 +95,13 @@ button {
 }
 
 button:hover { background: var(--accent-color); color: black; }
+button.active { background: var(--accent-color); color: black; }
 
 .right-panel {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    max-height: 480px;
+    max-height: 520px;
     overflow-y: auto;
     padding-right: 5px;
 }

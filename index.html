@@ -5,24 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mega MP3 OS Player</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Librería externa para leer las carátulas y artistas de los MP3 -->
+    <script src="https://cloudflare.com"></script>
 </head>
 <body>
 
-<!-- SELECTOR DE IDIOMA EN LA ESQUINA -->
 <div style="position: absolute; top: 15px; right: 15px; z-index: 100;">
-    <button id="btnLang" style="padding: 5px 10px; font-size: 0.8rem;">🌐 EN / ES</button>
+    <button id="btnLang">🌐 EN / ES</button>
 </div>
 
 <div class="player-container">
     
-    <!-- PANEL IZQUIERDO: CONTROLES NATIVOS Y ARTE -->
+    <!-- PANEL IZQUIERDO -->
     <div class="left-panel">
         <div class="album-art-zone" id="albumArt">
-            <span>🎵</span>
+            <img id="artImage" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+            <span id="artPlaceholder">🎵</span>
         </div>
         <div class="track-info">
             <h3 id="trackTitle" data-i18n="noTrack">Sin Canción</h3>
             <p id="trackArtist" data-i18n="uploadPrompt">Carga tus archivos MP3</p>
+            <p id="trackAlbum" style="font-size: 0.8rem; color: #777; margin: 2px 0;"></p>
         </div>
         
         <div class="audio-controls">
@@ -32,25 +35,33 @@
                 <span id="durationTime">0:00</span>
             </div>
             <div class="btn-group">
+                <button id="btnShuffle" title="Shuffle">🔀</button>
                 <button id="btnPrev">⏮</button>
                 <button id="btnPlay">▶</button>
                 <button id="btnNext">⏭</button>
+                <button id="btnLoop" title="Loop">🔁</button>
             </div>
         </div>
     </div>
 
-    <!-- PANEL DERECHO: MULTIFUNCIONES -->
+    <!-- PANEL DERECHO -->
     <div class="right-panel">
-        
-        <!-- Gestión y Listas -->
+        <!-- Playlists -->
         <div class="section-box">
+            <h4 data-i18n="titlePlaylists">🗂️ Listas de Reproducción</h4>
+            <div style="display:flex; gap:5px; margin-bottom:10px;">
+                <input type="text" id="playlistNameInput" placeholder="Nueva Lista / New List" style="flex:1; background:#1a1a22; border:1px solid #444; color:white; padding:5px; border-radius:4px;">
+                <button id="btnAddPlaylist" style="padding:5px 10px;">+</button>
+            </div>
+            <select id="playlistSelector" style="width:100%; background:#1a1a22; color:white; padding:5px; border-radius:4px; margin-bottom:10px;"></select>
+            
             <h4 data-i18n="titleFiles">📁 Gestión de Archivos</h4>
             <div class="drop-zone" id="dropZone" data-i18n="dropZoneText">Arrastrá tus .mp3 acá o hacé Click</div>
             <input type="file" id="fileInput" multiple accept="audio/mp3" style="display: none;">
             <ul class="playlist-ul" id="playlistView"></ul>
         </div>
 
-        <!-- Efectos de Audio -->
+        <!-- EQ -->
         <div class="section-box">
             <h4 data-i18n="titleFx">🎛️ Ecualizador & Efectos</h4>
             <div class="eq-sliders">
@@ -68,14 +79,13 @@
             </div>
         </div>
 
-        <!-- Letras de la Canción -->
+        <!-- Lyrics -->
         <div class="section-box">
             <h4 data-i18n="titleLyrics">🎤 Letras (Lyrics)</h4>
             <div class="lyrics-content" id="lyricsBox" data-i18n="lyricsWelcome">
                 Cargá canciones en tu lista y dale play para ver la magia.
             </div>
         </div>
-
     </div>
 </div>
 
